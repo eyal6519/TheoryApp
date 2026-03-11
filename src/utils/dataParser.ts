@@ -1,16 +1,15 @@
-import { Question, Answer } from '../types';
+import type { Question, Answer } from '../types';
 
-export function parseQuestions(xmlString: string): Question[] {
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-  const items = xmlDoc.getElementsByTagName('item');
+export function parseJsonQuestions(jsonString: string): Question[] {
+  const data = JSON.parse(jsonString);
+  const records = data.result?.records || [];
   const questions: Question[] = [];
+  const parser = new DOMParser();
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const fullTitle = item.getElementsByTagName('title')[0]?.textContent || '';
-    const category = item.getElementsByTagName('category')[0]?.textContent || '';
-    const descriptionXml = item.getElementsByTagName('description')[0]?.textContent || '';
+  for (const record of records) {
+    const fullTitle = record.title2 || '';
+    const category = record.category || '';
+    const descriptionHtml = record.description4 || '';
 
     // Split "1073. מה פירוש התמרור?" into ID and Title
     const titleMatch = fullTitle.match(/^(\d+)\.\s*(.*)/);
@@ -18,7 +17,7 @@ export function parseQuestions(xmlString: string): Question[] {
     const title = titleMatch ? titleMatch[2] : fullTitle;
 
     // Parse the inner description HTML
-    const descDoc = parser.parseFromString(descriptionXml, 'text/html');
+    const descDoc = parser.parseFromString(descriptionHtml, 'text/html');
     const listItems = descDoc.getElementsByTagName('li');
     const answers: Answer[] = [];
 
@@ -36,7 +35,10 @@ export function parseQuestions(xmlString: string): Question[] {
     const img = descDoc.getElementsByTagName('img')[0];
     const imageUrl = img?.getAttribute('src') || undefined;
 
-    if (id && title && answers.length > 0) {
+    // Filter for license type B (represented as «В» in the source data)
+    const isLicenseB = descriptionHtml.includes('«В»');
+
+    if (id && title && answers.length > 0 && isLicenseB) {
       questions.push({
         id,
         title,

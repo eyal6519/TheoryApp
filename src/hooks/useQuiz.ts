@@ -1,10 +1,17 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Question } from '../types';
+import { useState, useEffect } from 'react';
+import type { Question } from '../types';
 
 export function useQuiz(initialQuestions: Question[]) {
   const [remaining, setRemaining] = useState<Question[]>(initialQuestions);
   const [knownIds, setKnownIds] = useState<Set<string>>(new Set());
   const [reviewIds, setReviewIds] = useState<Set<string>>(new Set());
+
+  // Sync remaining when initialQuestions or knownIds change
+  useEffect(() => {
+    if (initialQuestions.length > 0) {
+      setRemaining(initialQuestions.filter(q => !knownIds.has(q.id)));
+    }
+  }, [initialQuestions, knownIds]);
 
   // Initialize from LocalStorage
   useEffect(() => {
@@ -12,10 +19,7 @@ export function useQuiz(initialQuestions: Question[]) {
     const savedReview = localStorage.getItem('reviewIds');
 
     if (savedKnown) {
-      const knownSet = new Set<string>(JSON.parse(savedKnown));
-      setKnownIds(knownSet);
-      // Filter out known questions from remaining
-      setRemaining(prev => prev.filter(q => !knownSet.has(q.id)));
+      setKnownIds(new Set(JSON.parse(savedKnown)));
     }
     if (savedReview) {
       setReviewIds(new Set(JSON.parse(savedReview)));

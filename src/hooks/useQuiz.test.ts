@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useQuiz } from './useQuiz';
-import { Question } from '../types';
+import type { Question } from '../types';
 
 const mockQuestions: Question[] = [
   { id: '1', title: 'Q1', category: 'C1', answers: [{ text: 'A1', isCorrect: true }] },

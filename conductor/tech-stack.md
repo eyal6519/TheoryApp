@@ -3,8 +3,10 @@
 ## Frontend
 - **Framework**: **React (TypeScript)** - For building a reactive, component-based user interface.
 - **Build Tool**: **Vite** - For fast development and optimized production builds.
-- **Styling**: **Vanilla CSS** - To maintain maximum flexibility and avoid unnecessary dependencies.
-- **UI Architecture**: Component-driven design for reusable quiz elements.
+- **Styling**: **Tailwind CSS** - For rapid, modern UI development.
+- **Animations**: **Framer Motion** - For smooth transitions and feedback.
+- **Icons**: **Lucide React** - For clear, accessible visual cues.
+- **UI Architecture**: Component-driven design within a streamlined single-file application structure.
 
 ## Data & Persistence
 - **XML Parsing**: Native browser **DOMParser API** - For efficient parsing of the 1,800+ question dataset.
