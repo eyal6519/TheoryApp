@@ -1,6 +1,6 @@
 # Implementation Plan: Randomized Question Order
 
-## Phase 1: Logic Implementation & Testing
+## Phase 1: Logic Implementation & Testing [checkpoint: a6191bd]
 - [x] Task: Create Shuffle Utility faa21d5
     - [x] Implement a Fisher-Yates shuffle algorithm in a new utility file `src/utils/shuffle.ts`
     - [x] Write unit tests for the shuffle function in `src/utils/shuffle.test.ts`
@@ -13,13 +13,13 @@
     - [x] Refactor state initialization to use lazy loading from LocalStorage.
     - [x] Remove the mount-time 'Load' useEffect to avoid race conditions.
     - [x] Verify persistence with tests.
-- [ ] Task: Conductor - User Manual Verification 'Logic Implementation & Testing' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Logic Implementation & Testing' (Protocol in workflow.md)
 
 ## Phase 2: Final Verification
-- [ ] Task: Manual Verification in Browser
-    - [ ] Verify that refreshing the page changes the first question shown.
-    - [ ] Confirm that "Known" questions are still properly removed from the initial pool.
-    - [ ] Ensure "Incorrect" re-queuing still works (moves to end of the currently shuffled queue).
-- [ ] Task: Final Coverage & Cleanup
-    - [ ] Verify that test coverage for `useQuiz.ts` and `shuffle.ts` is >80%.
-- [ ] Task: Conductor - User Manual Verification 'Final Verification' (Protocol in workflow.md)
+- [x] Task: Manual Verification in Browser
+    - [x] Verify that refreshing the page changes the first question shown.
+    - [x] Confirm that "Known" questions are still properly removed from the initial pool.
+    - [x] Ensure "Incorrect" re-queuing still works (moves to end of the currently shuffled queue).
+- [x] Task: Final Coverage & Cleanup
+    - [x] Verify that test coverage for `useQuiz.ts` and `shuffle.ts` is >80%.
+- [x] Task: Conductor - User Manual Verification 'Final Verification' (Protocol in workflow.md)
