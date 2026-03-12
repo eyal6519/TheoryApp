@@ -7,9 +7,9 @@
 - [x] Task: Conductor - User Manual Verification 'Core Logic (useQuiz Hook)' (Protocol in workflow.md)
 
 ## Phase 2: UI Feedback (Toast Component)
-- [ ] Task: Create `src/components/Toast.tsx` component using Framer Motion
-- [ ] Task: Write tests for `Toast.tsx` to verify auto-dismiss and visibility
-- [ ] Task: Verify tests pass and ensure >80% coverage
+- [x] Task: Create `src/components/Toast.tsx` component using Framer Motion 6278bcf
+- [x] Task: Write tests for `Toast.tsx` to verify auto-dismiss and visibility 6278bcf
+- [x] Task: Verify tests pass and ensure >80% coverage 6278bcf
 - [ ] Task: Conductor - User Manual Verification 'UI Feedback (Toast Component)' (Protocol in workflow.md)
 
 ## Phase 3: Integration & Final Polish
