@@ -4,6 +4,9 @@ import { CheckCircle, XCircle, RotateCcw, Trophy, BookOpen, Clock } from 'lucide
 import type { Question } from './types';
 import { parseJsonQuestions } from './utils/dataParser';
 import { useQuiz } from './hooks/useQuiz';
+import { Toast } from './components/Toast';
+import { ReviewModal } from './components/ReviewModal';
+import { RemainingCount } from './components/RemainingCount';
 
 export default function App() {
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
@@ -14,12 +17,22 @@ export default function App() {
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
   const [isAnswering, setIsAnswering] = useState(false);
 
+  // Toast state
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  // Modal state
+  const [showReviewModal, setShowReviewModal] = useState(false);
+
   const {
     currentQuestion,
     knownCount,
     reviewCount,
     remainingCount,
     handleAnswer,
+    bringReviewToFront,
+    reviewSession,
+    resetReviewSession,
   } = useQuiz(allQuestions);
 
   useEffect(() => {
@@ -37,6 +50,27 @@ export default function App() {
       });
   }, []);
 
+  // Handle Review Session completion
+  useEffect(() => {
+    if (reviewSession && reviewSession.count === reviewSession.total) {
+      if (reviewSession.failed) {
+        // Short delay so the last answer feedback can be seen
+        const timer = setTimeout(() => {
+          setShowReviewModal(true);
+        }, 1300);
+        return () => clearTimeout(timer);
+      } else {
+        // Success!
+        const timer = setTimeout(() => {
+          setToastMessage('כל הכבוד! הצלחת בכל השאלות בהן טעית');
+          setShowToast(true);
+          resetReviewSession();
+        }, 1300);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [reviewSession, resetReviewSession]);
+
   const onAnswerSelect = (index: number) => {
     if (isAnswering || !currentQuestion) return;
     
@@ -51,6 +85,27 @@ export default function App() {
       setSelectedAnswerIndex(null);
       setIsAnswering(false);
     }, 1200);
+  };
+
+  const handleReviewClick = () => {
+    if (reviewCount > 0) {
+      bringReviewToFront();
+      setToastMessage('שאלות לביקורת הועברו להתחלה');
+      setShowToast(true);
+    } else {
+      setToastMessage('אין שאלות לביקורת כרגע');
+      setShowToast(true);
+    }
+  };
+
+  const onRetryReview = () => {
+    setShowReviewModal(false);
+    bringReviewToFront();
+  };
+
+  const onContinueAfterReview = () => {
+    setShowReviewModal(false);
+    resetReviewSession();
   };
 
   const resetProgress = () => {
@@ -113,7 +168,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900" dir="rtl">
       {/* Header / Stats */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10 px-4 py-3 shadow-sm">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-10 px-4 py-2 shadow-sm">
         <div className="max-w-xl mx-auto flex justify-between items-center">
           <div className="flex gap-4">
             <div className="flex flex-col items-center">
@@ -123,26 +178,30 @@ export default function App() {
                 <span>{knownCount}</span>
               </div>
             </div>
-            <div className="flex flex-col items-center">
-              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">לביקורת</span>
+            <button 
+              onClick={handleReviewClick}
+              className="flex flex-col items-center hover:bg-slate-50 px-2 rounded-lg transition-colors group"
+              title="הצג שאלות לביקורת תחילה"
+            >
+              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold group-hover:text-amber-500">לביקורת</span>
               <div className="flex items-center gap-1 text-amber-500 font-bold">
                 <Clock className="w-4 h-4" />
                 <span>{reviewCount}</span>
               </div>
-            </div>
+            </button>
           </div>
           
-          <div className="text-center">
-            <h1 className="text-lg font-black text-slate-800 tracking-tight uppercase">תרגול תיאוריה</h1>
-            <p className="text-xs text-slate-400 font-mono">({remainingCount}) נותרו</p>
-          </div>
+          <RemainingCount count={remainingCount} />
 
           <button 
             onClick={resetProgress}
-            className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+            className="flex flex-col items-center hover:bg-slate-50 px-2 rounded-lg transition-colors group text-slate-400"
             title="איפוס התקדמות"
           >
-            <RotateCcw className="w-5 h-5" />
+            <span className="text-[10px] uppercase tracking-wider font-bold group-hover:text-red-500">איפוס</span>
+            <div className="flex items-center gap-1 font-bold group-hover:text-red-500">
+              <RotateCcw className="w-4 h-4" />
+            </div>
           </button>
         </div>
       </header>
@@ -229,6 +288,18 @@ export default function App() {
         </div>
         <p>© 2026 תרגול תיאוריה</p>
       </footer>
+
+      <Toast 
+        message={toastMessage} 
+        isVisible={showToast} 
+        onClose={() => setShowToast(false)} 
+      />
+
+      <ReviewModal 
+        isOpen={showReviewModal}
+        onRetry={onRetryReview}
+        onContinue={onContinueAfterReview}
+      />
     </div>
   );
 }
