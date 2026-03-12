@@ -1,0 +1,8 @@
+{
+  "track_id": "008-big-count",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-03-12T10:20:00Z",
+  "updated_at": "2026-03-12T10:20:00Z",
+  "description": "make the remaing count big, it should be a main feature in the ui/ux and add a count down animation"
+}
