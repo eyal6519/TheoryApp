@@ -1,17 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Question } from '../types';
+import { shuffle } from '../utils/shuffle';
 
 export function useQuiz(initialQuestions: Question[]) {
-  const [remaining, setRemaining] = useState<Question[]>(initialQuestions);
+  const [remaining, setRemaining] = useState<Question[]>([]);
   const [knownIds, setKnownIds] = useState<Set<string>>(new Set());
   const [reviewIds, setReviewIds] = useState<Set<string>>(new Set());
-
-  // Sync remaining when initialQuestions or knownIds change
-  useEffect(() => {
-    if (initialQuestions.length > 0) {
-      setRemaining(initialQuestions.filter(q => !knownIds.has(q.id)));
-    }
-  }, [initialQuestions, knownIds]);
+  const [initialized, setInitialized] = useState(false);
 
   // Initialize from LocalStorage
   useEffect(() => {
@@ -25,6 +20,20 @@ export function useQuiz(initialQuestions: Question[]) {
       setReviewIds(new Set(JSON.parse(savedReview)));
     }
   }, []);
+
+  // Sync remaining when initialQuestions or knownIds change
+  // BUT only shuffle once when questions are first loaded
+  useEffect(() => {
+    if (initialQuestions.length > 0 && !initialized) {
+      const filtered = initialQuestions.filter(q => !knownIds.has(q.id));
+      setRemaining(shuffle(filtered));
+      setInitialized(true);
+    } else if (initialQuestions.length > 0 && initialized) {
+      // If already initialized but knownIds changed elsewhere (e.g. storage sync)
+      // we just filter, we don't re-shuffle the existing remaining
+      setRemaining(prev => prev.filter(q => !knownIds.has(q.id)));
+    }
+  }, [initialQuestions, knownIds, initialized]);
 
   // Save to LocalStorage when pools change
   useEffect(() => {
