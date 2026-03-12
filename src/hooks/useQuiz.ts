@@ -75,6 +75,14 @@ export function useQuiz(initialQuestions: Question[]) {
     }
   };
 
+  const bringReviewToFront = () => {
+    setRemaining(prev => {
+      const reviewQuestions = prev.filter(q => reviewIds.has(q.id));
+      const otherQuestions = prev.filter(q => !reviewIds.has(q.id));
+      return [...reviewQuestions, ...otherQuestions];
+    });
+  };
+
   return {
     currentQuestion,
     remaining,
@@ -82,5 +90,6 @@ export function useQuiz(initialQuestions: Question[]) {
     reviewCount: reviewIds.size,
     remainingCount: remaining.length,
     handleAnswer,
+    bringReviewToFront,
   };
 }

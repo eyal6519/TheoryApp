@@ -80,4 +80,34 @@ describe('useQuiz', () => {
     const stored = JSON.parse(localStorage.getItem('knownIds') || '[]');
     expect(stored).toEqual(expect.arrayContaining(initialKnown));
   });
+
+  it('should move review questions to the front when bringReviewToFront is called', () => {
+    const { result } = renderHook(() => useQuiz(mockQuestions));
+    
+    // Initial order: [3, 2, 1]
+    // Mark 1 as wrong. Order becomes [3, 2, 1], but 1 is in reviewIds.
+    // Wait, the hook re-queues it at the end immediately.
+    // Let's answer 3 correctly, 2 incorrectly.
+    // [3, 2, 1] -> Correct 3 -> [2, 1]
+    // [2, 1] -> Incorrect 2 -> [1, 2], reviewIds: {2}
+    
+    act(() => {
+      result.current.handleAnswer(true); // 3 is correct
+    });
+    act(() => {
+      result.current.handleAnswer(false); // 2 is incorrect
+    });
+    
+    expect(result.current.currentQuestion?.id).toBe('1');
+    expect(result.current.reviewCount).toBe(1);
+    
+    act(() => {
+      result.current.bringReviewToFront();
+    });
+    
+    // After bringReviewToFront, 2 should be at the front.
+    expect(result.current.currentQuestion?.id).toBe('2');
+    expect(result.current.remaining[0].id).toBe('2');
+    expect(result.current.remaining[1].id).toBe('1');
+  });
 });
