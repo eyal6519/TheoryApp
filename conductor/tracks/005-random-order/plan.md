@@ -7,8 +7,8 @@
 - [x] Task: Integrate Shuffle in `useQuiz.ts` f56082f
     - [x] Update `useQuiz` to shuffle the `initialQuestions` (after filtering known) exactly once on mount
     - [x] Ensure the re-shuffle does not happen on every state update, but only when `initialQuestions` changes (initial load)
-- [ ] Task: Update Hook Tests
-    - [ ] Update `src/hooks/useQuiz.test.ts` to mock or expect a different order when the randomization is active.
+- [x] Task: Update Hook Tests f56082f
+    - [x] Update `src/hooks/useQuiz.test.ts` to mock or expect a different order when the randomization is active.
 - [ ] Task: Conductor - User Manual Verification 'Logic Implementation & Testing' (Protocol in workflow.md)
 
 ## Phase 2: Final Verification
