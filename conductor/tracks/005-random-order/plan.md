@@ -9,6 +9,10 @@
     - [x] Ensure the re-shuffle does not happen on every state update, but only when `initialQuestions` changes (initial load)
 - [x] Task: Update Hook Tests f56082f
     - [x] Update `src/hooks/useQuiz.test.ts` to mock or expect a different order when the randomization is active.
+- [x] Task: Fix LocalStorage Persistence Bug 0fe1cdf
+    - [x] Refactor state initialization to use lazy loading from LocalStorage.
+    - [x] Remove the mount-time 'Load' useEffect to avoid race conditions.
+    - [x] Verify persistence with tests.
 - [ ] Task: Conductor - User Manual Verification 'Logic Implementation & Testing' (Protocol in workflow.md)
 
 ## Phase 2: Final Verification
