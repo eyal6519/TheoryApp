@@ -13,6 +13,7 @@ To provide a simple, effective, and mobile-friendly way for students to prepare 
 - **Flashcard System**: Questions are shown one at a time. Users select a multiple-choice answer.
     - **Correct**: Moves to "Known" pool.
     - **Incorrect**: Moves to "Review" pool.
+- **Question Randomization**: The active pool of questions is automatically shuffled on every load or refresh, ensuring a unique learning sequence each time.
 - **Progress Tracking**: Real-time display of:
     - **Mastered Count**: Total correct answers.
     - **Review Count**: Total incorrect answers.
