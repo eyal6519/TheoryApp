@@ -4,9 +4,9 @@
 - [x] Task: Create Shuffle Utility faa21d5
     - [x] Implement a Fisher-Yates shuffle algorithm in a new utility file `src/utils/shuffle.ts`
     - [x] Write unit tests for the shuffle function in `src/utils/shuffle.test.ts`
-- [ ] Task: Integrate Shuffle in `useQuiz.ts`
-    - [ ] Update `useQuiz` to shuffle the `initialQuestions` (after filtering known) exactly once on mount.
-    - [ ] Ensure the re-shuffle does not happen on every state update, but only when `initialQuestions` changes (initial load).
+- [x] Task: Integrate Shuffle in `useQuiz.ts` f56082f
+    - [x] Update `useQuiz` to shuffle the `initialQuestions` (after filtering known) exactly once on mount
+    - [x] Ensure the re-shuffle does not happen on every state update, but only when `initialQuestions` changes (initial load)
 - [ ] Task: Update Hook Tests
     - [ ] Update `src/hooks/useQuiz.test.ts` to mock or expect a different order when the randomization is active.
 - [ ] Task: Conductor - User Manual Verification 'Logic Implementation & Testing' (Protocol in workflow.md)
