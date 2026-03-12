@@ -1,25 +1,21 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import type { Question } from '../types';
 import { shuffle } from '../utils/shuffle';
 
 export function useQuiz(initialQuestions: Question[]) {
+  // Initialize pools from LocalStorage immediately (lazy initialization)
+  const [knownIds, setKnownIds] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('knownIds');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  const [reviewIds, setReviewIds] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('reviewIds');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
   const [remaining, setRemaining] = useState<Question[]>([]);
-  const [knownIds, setKnownIds] = useState<Set<string>>(new Set());
-  const [reviewIds, setReviewIds] = useState<Set<string>>(new Set());
   const [initialized, setInitialized] = useState(false);
-
-  // Initialize from LocalStorage
-  useEffect(() => {
-    const savedKnown = localStorage.getItem('knownIds');
-    const savedReview = localStorage.getItem('reviewIds');
-
-    if (savedKnown) {
-      setKnownIds(new Set(JSON.parse(savedKnown)));
-    }
-    if (savedReview) {
-      setReviewIds(new Set(JSON.parse(savedReview)));
-    }
-  }, []);
 
   // Sync remaining when initialQuestions or knownIds change
   // BUT only shuffle once when questions are first loaded
@@ -51,7 +47,11 @@ export function useQuiz(initialQuestions: Question[]) {
 
     if (isCorrect) {
       // Move to Known pool
-      setKnownIds(prev => new Set(prev).add(currentQuestion.id));
+      setKnownIds(prev => {
+        const next = new Set(prev);
+        next.add(currentQuestion.id);
+        return next;
+      });
       // Remove from Review if it was there
       setReviewIds(prev => {
         const next = new Set(prev);
@@ -62,7 +62,11 @@ export function useQuiz(initialQuestions: Question[]) {
       setRemaining(prev => prev.slice(1));
     } else {
       // Move to Review pool (if not already there)
-      setReviewIds(prev => new Set(prev).add(currentQuestion.id));
+      setReviewIds(prev => {
+        const next = new Set(prev);
+        next.add(currentQuestion.id);
+        return next;
+      });
       // Re-queue the question at the end of remaining
       setRemaining(prev => {
         const [first, ...rest] = prev;

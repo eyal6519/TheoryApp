@@ -69,4 +69,15 @@ describe('useQuiz', () => {
     // Shuffled (reversed) of [2, 3] is [3, 2]
     expect(result.current.currentQuestion?.id).toBe('3');
   });
+
+  it('should not wipe LocalStorage on initialization', () => {
+    const initialKnown = ['1', '2'];
+    localStorage.setItem('knownIds', JSON.stringify(initialKnown));
+    
+    renderHook(() => useQuiz(mockQuestions));
+    
+    // Check if it's still there after mount effects
+    const stored = JSON.parse(localStorage.getItem('knownIds') || '[]');
+    expect(stored).toEqual(expect.arrayContaining(initialKnown));
+  });
 });
