@@ -1,9 +1,9 @@
 # Implementation Plan: Review Mode Button
 
 ## Phase 1: Core Logic (useQuiz Hook)
-- [ ] Task: Write failing tests for `bringReviewToFront` functionality in `useQuiz.test.ts`
-- [ ] Task: Implement `bringReviewToFront` logic in `useQuiz.ts`
-- [ ] Task: Verify tests pass and ensure >80% coverage for the hook
+- [x] Task: Write failing tests for `bringReviewToFront` functionality in `useQuiz.test.ts` 0c3e027
+- [x] Task: Implement `bringReviewToFront` logic in `useQuiz.ts` 0c3e027
+- [x] Task: Verify tests pass and ensure >80% coverage for the hook 0c3e027
 - [ ] Task: Conductor - User Manual Verification 'Core Logic (useQuiz Hook)' (Protocol in workflow.md)
 
 ## Phase 2: UI Feedback (Toast Component)
