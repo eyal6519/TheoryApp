@@ -1,6 +1,6 @@
 # Implementation Plan: Test Mode (Track: 009-test-mode)
 
-## Phase 1: Domain Logic & State Management (TDD)
+## Phase 1: Domain Logic & State Management (TDD) [checkpoint: 7c1c317]
 Focus on the core engine for the 40-minute test and question selection logic.
 
 - [x] Task: Create `src/hooks/useTestMode.ts` for managing test state. a358927
@@ -9,7 +9,7 @@ Focus on the core engine for the 40-minute test and question selection logic.
     - [x] Write tests for auto-submission on timer expiration.
     - [x] Write tests for scoring and passing logic (Pass if score >= 26).
     - [x] Implement `useTestMode` hook to satisfy all tests.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Domain Logic' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Domain Logic' (Protocol in workflow.md) 7c1c317
 
 ## Phase 2: UI Components
 Develop the specialized UI elements for the test environment.
