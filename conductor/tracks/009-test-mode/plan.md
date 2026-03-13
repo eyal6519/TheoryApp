@@ -14,9 +14,9 @@ Focus on the core engine for the 40-minute test and question selection logic.
 ## Phase 2: UI Components
 Develop the specialized UI elements for the test environment.
 
-- [ ] Task: Create `src/components/TestModeHeader.tsx`.
-    - [ ] Implement visible timer display at the top.
-    - [ ] Write tests for timer formatting (MM:SS).
+- [x] Task: Create `src/components/TestModeHeader.tsx`. b3baa28
+    - [x] Implement visible timer display at the top.
+    - [x] Write tests for timer formatting (MM:SS).
 - [ ] Task: Create `src/components/TestModeNavigation.tsx`.
     - [ ] Implement 1-30 question grid for rapid navigation.
     - [ ] Implement flagging logic with visual indicators in the grid.
