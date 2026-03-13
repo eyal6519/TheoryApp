@@ -3,12 +3,12 @@
 ## Phase 1: Domain Logic & State Management (TDD)
 Focus on the core engine for the 40-minute test and question selection logic.
 
-- [ ] Task: Create `src/hooks/useTestMode.ts` for managing test state.
-    - [ ] Write tests for category-based question selection (10 Laws, 6 Signs, 9 Safety, 5 Vehicle).
-    - [ ] Write tests for timer management (initial 40:00, ticking down, stop).
-    - [ ] Write tests for auto-submission on timer expiration.
-    - [ ] Write tests for scoring and passing logic (Pass if score >= 26).
-    - [ ] Implement `useTestMode` hook to satisfy all tests.
+- [x] Task: Create `src/hooks/useTestMode.ts` for managing test state. a358927
+    - [x] Write tests for category-based question selection (10 Laws, 6 Signs, 9 Safety, 5 Vehicle).
+    - [x] Write tests for timer management (initial 40:00, ticking down, stop).
+    - [x] Write tests for auto-submission on timer expiration.
+    - [x] Write tests for scoring and passing logic (Pass if score >= 26).
+    - [x] Implement `useTestMode` hook to satisfy all tests.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Domain Logic' (Protocol in workflow.md)
 
 ## Phase 2: UI Components
