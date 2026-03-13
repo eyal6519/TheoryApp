@@ -10,7 +10,7 @@
 - **Visual Cues**: Use subtle but clear color-coding (e.g., green for correct, red for incorrect) to provide immediate feedback.
 
 ## UX & Interaction Principles
-- **Instant Feedback**: When a user selects an answer, the app must provide immediate visual feedback (e.g., a color flash or icon) before transitioning to the next question.
+- **Instant Feedback (Mode-Specific)**: In practice sessions, the app provides immediate visual feedback (e.g., a color flash or icon) before transitioning to the next question. In Test Mode, feedback is deferred until completion to simulate exam conditions.
 - **Fluid Transitions**: Questions should transition smoothly to maintain the user's focus and provide a "seamless" feel to the study flow.
 - **Large Tap Targets**: All interactive elements, especially answer choices, must have large enough tap areas to ensure ease of use on mobile devices.
 

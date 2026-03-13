@@ -13,6 +13,11 @@ To provide a simple, effective, and mobile-friendly way for students to prepare 
 - **Flashcard System**: Questions are shown one at a time. Users select a multiple-choice answer.
     - **Correct**: Moves to "Known" pool.
     - **Incorrect**: Moves to "Review" pool.
+- **Test Mode Simulation**: A realistic simulation of the official Israeli driving theory exam.
+    - **Official Distribution**: 30 questions selected with official category weightings.
+    - **Timed Exam**: 40-minute countdown with automatic submission.
+    - **No Immediate Feedback**: Correct/incorrect answers are only revealed after finishing the test.
+    - **Passing Criteria**: At least 26 correct answers required to pass.
 - **Question Randomization**: The active pool of questions is automatically shuffled on every load or refresh, ensuring a unique learning sequence each time.
 - **Progress Tracking**: Real-time display of:
     - **Mastered Count**: Total correct answers.
