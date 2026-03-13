@@ -4,23 +4,28 @@ import { shuffle } from '../utils/shuffle';
 
 export function useTestMode(allQuestions: Question[]) {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const userAnswersRef = useRef<Record<number, boolean>>({});
-  const [userAnswers, setUserAnswersState] = useState<Record<number, boolean>>({});
+  const userAnswersRef = useRef<Record<number, number>>({});
+  const [userAnswers, setUserAnswersState] = useState<Record<number, number>>({});
   const [timeLeft, setTimeLeft] = useState(40 * 60);
   const [isFinished, setIsFinished] = useState(false);
   const [isPassed, setIsPassed] = useState(false);
   const [score, setScore] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const submitTest = useCallback(() => {
     setIsFinished(true);
     if (timerRef.current) clearInterval(timerRef.current);
 
-    const correctCount = Object.values(userAnswersRef.current).filter(Boolean).length;
+    const correctCount = questions.reduce((acc, q, i) => {
+      const chosenIndex = userAnswersRef.current[i];
+      if (chosenIndex === undefined) return acc;
+      return q.answers[chosenIndex]?.isCorrect ? acc + 1 : acc;
+    }, 0);
+
     setScore(correctCount);
     setIsPassed(correctCount >= 26);
-  }, []);
+  }, [questions]);
 
   const startTest = useCallback(() => {
     const laws = shuffle(allQuestions.filter(q => q.category === 'חוקי התנועה')).slice(0, 10);
@@ -51,9 +56,9 @@ export function useTestMode(allQuestions: Question[]) {
     }, 1000);
   }, [allQuestions, submitTest]);
 
-  const handleAnswer = useCallback((index: number, isCorrect: boolean) => {
-    userAnswersRef.current[index] = isCorrect;
-    setUserAnswersState(prev => ({ ...prev, [index]: isCorrect }));
+  const handleAnswer = useCallback((index: number, answerIndex: number) => {
+    userAnswersRef.current[index] = answerIndex;
+    setUserAnswersState(prev => ({ ...prev, [index]: answerIndex }));
   }, []);
 
   useEffect(() => {

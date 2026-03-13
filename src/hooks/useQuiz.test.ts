@@ -110,4 +110,51 @@ describe('useQuiz', () => {
     expect(result.current.remaining[0].id).toBe('2');
     expect(result.current.remaining[1].id).toBe('1');
   });
+
+  it('should track review session progress and failure', () => {
+    const { result } = renderHook(() => useQuiz(mockQuestions));
+    
+    // 1 wrong, 2 wrong. Order [3, 2, 1] -> Wrong 3 -> [2, 1, 3] -> Wrong 2 -> [1, 3, 2]
+    // reviewIds: {3, 2}
+    act(() => {
+      result.current.handleAnswer(false); // 3 wrong
+    });
+    act(() => {
+      result.current.handleAnswer(false); // 2 wrong
+    });
+
+    expect(result.current.reviewCount).toBe(2);
+
+    act(() => {
+      result.current.bringReviewToFront();
+    });
+
+    expect(result.current.reviewSession).toEqual({
+      total: 2,
+      count: 0,
+      failed: false,
+    });
+
+    // Answer first one correctly
+    act(() => {
+      result.current.handleAnswer(true);
+    });
+
+    expect(result.current.reviewSession).toEqual({
+      total: 2,
+      count: 1,
+      failed: false,
+    });
+
+    // Answer second one incorrectly
+    act(() => {
+      result.current.handleAnswer(false);
+    });
+
+    expect(result.current.reviewSession).toEqual({
+      total: 2,
+      count: 2,
+      failed: true,
+    });
+  });
 });

@@ -29,17 +29,17 @@ Develop the specialized UI elements for the test environment.
 ## Phase 3: Integration & UX Flow
 Connect the domain logic with the UI and integrate into the main application.
 
-- [ ] Task: Add "Start Test" button to the main screen.
-- [ ] Task: Implement full "Test Mode" screen layout.
-    - [ ] Integrate `TestModeHeader`, `TestModeNavigation`, and the existing question display logic.
-    - [ ] Ensure Test Mode is ephemeral and doesn't pollute practice "Known/Review" pools.
-- [ ] Task: Implement "Post-Test Review" mode.
-    - [ ] Allow users to revisit all 30 questions with their answer and the correct answer shown.
-- [ ] Task: Final UI Polish & Framer Motion transitions.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Integration' (Protocol in workflow.md)
+- [x] Task: Add "Start Test" button to the main screen. 02d68c7
+- [x] Task: Implement full "Test Mode" screen layout. 02d68c7
+    - [x] Integrate `TestModeHeader`, `TestModeNavigation`, and the existing question display logic.
+    - [x] Ensure Test Mode is ephemeral and doesn't pollute practice "Known/Review" pools.
+- [x] Task: Implement "Post-Test Review" mode. 02d68c7
+    - [x] Allow users to revisit all 30 questions with their answer and the correct answer shown.
+- [x] Task: Final UI Polish & Framer Motion transitions. 02d68c7
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Integration' (Protocol in workflow.md) 02d68c7
 
 ## Phase 4: Final Verification
-- [ ] Task: Ensure all tests pass with >80% coverage.
-- [ ] Task: Verify mobile responsiveness for all new components.
-- [ ] Task: Perform final manual verification of the end-to-end flow.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Final' (Protocol in workflow.md)
+- [x] Task: Ensure all tests pass with >80% coverage.
+- [x] Task: Verify mobile responsiveness for all new components.
+- [x] Task: Perform final manual verification of the end-to-end flow.
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Final' (Protocol in workflow.md)

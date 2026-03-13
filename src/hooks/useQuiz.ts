@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react';
 import type { Question } from '../types';
 import { shuffle } from '../utils/shuffle';
 
+export interface ReviewSession {
+  total: number;
+  count: number;
+  failed: boolean;
+}
+
 export function useQuiz(initialQuestions: Question[]) {
   // Initialize pools from LocalStorage immediately (lazy initialization)
   const [knownIds, setKnownIds] = useState<Set<string>>(() => {
@@ -16,6 +22,9 @@ export function useQuiz(initialQuestions: Question[]) {
 
   const [remaining, setRemaining] = useState<Question[]>([]);
   const [initialized, setInitialized] = useState(false);
+
+  // Review session state
+  const [reviewSession, setReviewSession] = useState<ReviewSession | null>(null);
 
   // Sync remaining when initialQuestions or knownIds change
   // BUT only shuffle once when questions are first loaded
@@ -44,6 +53,18 @@ export function useQuiz(initialQuestions: Question[]) {
 
   const handleAnswer = (isCorrect: boolean) => {
     if (!currentQuestion) return;
+
+    // Update review session if active
+    if (reviewSession) {
+      setReviewSession(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          count: prev.count + 1,
+          failed: prev.failed || !isCorrect,
+        };
+      });
+    }
 
     if (isCorrect) {
       // Move to Known pool
@@ -76,11 +97,24 @@ export function useQuiz(initialQuestions: Question[]) {
   };
 
   const bringReviewToFront = () => {
+    const rIds = Array.from(reviewIds);
+    if (rIds.length === 0) return;
+
+    setReviewSession({
+      total: rIds.length,
+      count: 0,
+      failed: false,
+    });
+
     setRemaining(prev => {
       const reviewQuestions = prev.filter(q => reviewIds.has(q.id));
       const otherQuestions = prev.filter(q => !reviewIds.has(q.id));
       return [...reviewQuestions, ...otherQuestions];
     });
+  };
+
+  const resetReviewSession = () => {
+    setReviewSession(null);
   };
 
   return {
@@ -91,5 +125,7 @@ export function useQuiz(initialQuestions: Question[]) {
     remainingCount: remaining.length,
     handleAnswer,
     bringReviewToFront,
+    reviewSession,
+    resetReviewSession,
   };
 }

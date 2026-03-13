@@ -1,6 +1,6 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { expect, test, vi, beforeEach } from 'vitest'
-import App from './App'
+import { App } from './App'
 import * as shuffleUtils from './utils/shuffle'
 
 // Mock shuffle to be identity for predictability

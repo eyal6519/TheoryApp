@@ -13,8 +13,8 @@
 - [ ] Task: Conductor - User Manual Verification 'UI Feedback (Toast Component)' (Protocol in workflow.md)
 
 ## Phase 3: Integration & Final Polish
-- [ ] Task: Integrate `Toast` component into `App.tsx`
-- [ ] Task: Update Header in `App.tsx` to make "Review Count" clickable
-- [ ] Task: Implement click handler in `App.tsx` to trigger review logic or show toast
+- [x] Task: Integrate `Toast` component into `App.tsx`
+- [x] Task: Update Header in `App.tsx` to make "Review Count" clickable
+- [x] Task: Implement click handler in `App.tsx` to trigger review logic or show toast
 - [ ] Task: Final manual verification on mobile (responsive check)
 - [ ] Task: Conductor - User Manual Verification 'Integration & Final Polish' (Protocol in workflow.md)

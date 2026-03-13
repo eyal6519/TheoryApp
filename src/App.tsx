@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, RotateCcw, Trophy, BookOpen, Clock, Play } from 'lucide-react';
 import type { Question } from './types';
@@ -12,7 +12,119 @@ import { TestModeHeader } from './components/TestModeHeader';
 import { TestModeNavigation } from './components/TestModeNavigation';
 import { TestModeResult } from './components/TestModeResult';
 
-export default function App() {
+interface QuestionDisplayProps {
+  question: Question;
+  index: number;
+  isSelected: boolean;
+  isAnswering: boolean;
+  isTestMode: boolean;
+  isReviewMode: boolean;
+  chosenAnswerIndex?: number;
+  onAnswerSelect: (index: number) => void;
+  onToggleFlag?: () => void;
+  isFlagged?: boolean;
+}
+
+const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
+  question,
+  index,
+  isSelected,
+  isAnswering,
+  isTestMode,
+  isReviewMode,
+  chosenAnswerIndex,
+  onAnswerSelect,
+  onToggleFlag,
+  isFlagged,
+}) => {
+  return (
+    <motion.div
+      data-testid={`question-display-${isTestMode ? 'test' : 'practice'}`}
+      initial={{ x: 50, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: -50, opacity: 0 }}
+      className="flex flex-col gap-6"
+    >
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        {question.imageUrl && (
+          <div className="w-full bg-slate-100 aspect-video flex items-center justify-center p-4">
+            <img 
+              src={question.imageUrl} 
+              alt="Question visual" 
+              className="max-h-full max-w-full object-contain rounded-lg"
+            />
+          </div>
+        )}
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-3">
+            <span className="inline-block px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold">
+              {question.category || 'כללי'}
+            </span>
+            {isTestMode && !isReviewMode && onToggleFlag && (
+              <button 
+                onClick={onToggleFlag}
+                className={`p-2 rounded-full transition-colors ${isFlagged ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'}`}
+              >
+                <Clock size={18} fill={isFlagged ? "currentColor" : "none"} />
+              </button>
+            )}
+          </div>
+          <h2 className="text-xl font-bold leading-tight text-slate-800">
+            {question.title}
+          </h2>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3">
+        {question.answers.map((answer, i) => {
+          const isUserSelected = isReviewMode && chosenAnswerIndex === i;
+          const isCurrentlySelected = !isReviewMode && isSelected && index === i;
+
+          let showCorrect = isAnswering && answer.isCorrect;
+          let showIncorrect = isAnswering && isCurrentlySelected && !answer.isCorrect;
+
+          if (isReviewMode) {
+            showCorrect = answer.isCorrect;
+            showIncorrect = isUserSelected && !answer.isCorrect;
+          }
+          
+          let buttonClass = "w-full p-5 text-right rounded-2xl border-2 transition-all flex items-center justify-between gap-4 ";
+          
+          if (isAnswering || isReviewMode) {
+            if (answer.isCorrect) {
+              buttonClass += "border-emerald-500 bg-emerald-50 text-emerald-900";
+            } else if (isUserSelected || (isCurrentlySelected && !isReviewMode)) {
+              buttonClass += "border-red-500 bg-red-50 text-red-900";
+            } else {
+              buttonClass += "border-slate-100 opacity-50";
+            }
+          } else {
+            buttonClass += "border-slate-200 bg-white hover:border-emerald-200 hover:bg-slate-50 active:scale-[0.98]";
+            // In Test Mode, if already answered, highlight the selection without feedback
+            if (isTestMode && chosenAnswerIndex !== undefined && chosenAnswerIndex === i) {
+               buttonClass += "ring-2 ring-blue-500 bg-blue-50/50 ";
+            }
+          }
+
+          return (
+            <button
+              key={i}
+              onClick={() => onAnswerSelect(i)}
+              disabled={isAnswering || isReviewMode}
+              className={buttonClass}
+            >
+              <span className="text-lg font-medium">{answer.text}</span>
+              {showCorrect && <CheckCircle data-testid="CheckCircle" className="w-6 h-6 text-emerald-500 shrink-0" />}
+              {showIncorrect && <XCircle data-testid="XCircle" className="w-6 h-6 text-red-500 shrink-0" />}
+            </button>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+};
+
+export function App() {
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,20 +210,11 @@ export default function App() {
       const currentQuestion = testQuestions[currentTestIndex];
       if (!currentQuestion) return;
 
-      setSelectedAnswerIndex(index);
-      setIsAnswering(true);
-      
-      const isCorrect = currentQuestion.answers[index].isCorrect;
-      handleTestAnswer(currentTestIndex, isCorrect);
+      handleTestAnswer(currentTestIndex, index);
 
-      setTimeout(() => {
-        setSelectedAnswerIndex(null);
-        setIsAnswering(false);
-        // Auto-advance if not at the end
-        if (currentTestIndex < testQuestions.length - 1) {
-          setCurrentTestIndex(prev => prev + 1);
-        }
-      }, 400);
+      if (currentTestIndex < testQuestions.length - 1) {
+        setCurrentTestIndex(prev => prev + 1);
+      }
       return;
     }
 
@@ -148,6 +251,8 @@ export default function App() {
     setCurrentTestIndex(0);
     setFlaggedIndices([]);
     setIsShowingTestReview(false);
+    setIsAnswering(false);
+    setSelectedAnswerIndex(null);
   };
 
   const handleQuitTest = () => {
@@ -227,7 +332,7 @@ export default function App() {
     );
   }
 
-  // Main Test Mode UI or Practice Mode UI
+  // Current question data
   const currentQuestion = isTestModeActive ? testQuestions[currentTestIndex] : practiceQuestion;
 
   if (!currentQuestion && allQuestions.length > 0 && !isTestModeActive) {
@@ -334,138 +439,59 @@ export default function App() {
       <main className="flex-1 max-w-xl w-full mx-auto p-4 flex flex-col gap-6">
         <AnimatePresence mode="wait">
           {currentQuestion && (
-            <motion.div
+            <QuestionDisplay 
               key={isTestModeActive ? `${currentTestIndex}-${currentQuestion.id}` : currentQuestion.id}
-              initial={{ x: 50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -50, opacity: 0 }}
-              className="flex flex-col gap-6"
-            >
-              <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                {currentQuestion.imageUrl && (
-                  <div className="w-full bg-slate-100 aspect-video flex items-center justify-center p-4">
-                    <img 
-                      src={currentQuestion.imageUrl} 
-                      alt="Question visual" 
-                      className="max-h-full max-w-full object-contain rounded-lg"
-                    />
-                  </div>
-                )}
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="inline-block px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold">
-                      {currentQuestion.category || 'כללי'}
-                    </span>
-                    {isTestModeActive && !isShowingTestReview && (
-                      <button 
-                        onClick={toggleFlag}
-                        className={`p-2 rounded-full transition-colors ${flaggedIndices.includes(currentTestIndex) ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'}`}
-                      >
-                        <Clock size={18} fill={flaggedIndices.includes(currentTestIndex) ? "currentColor" : "none"} />
-                      </button>
-                    )}
-                  </div>
-                  <h2 className="text-xl font-bold leading-tight text-slate-800">
-                    {currentQuestion.title}
-                  </h2>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3">
-                {currentQuestion.answers.map((answer, index) => {
-                  const isSelected = selectedAnswerIndex === index;
-                  
-                  // In Test Mode Review, show the correct answer and user's choice
-                  const testAnsweredIndices = Object.keys(testUserAnswers).map(Number);
-
-                  let showCorrect = isAnswering && answer.isCorrect;
-                  let showIncorrect = isAnswering && isSelected && !answer.isCorrect;
-
-                  if (isTestModeActive && isShowingTestReview) {
-                    showCorrect = answer.isCorrect;
-                  }
-                  
-                  let buttonClass = "w-full p-5 text-right rounded-2xl border-2 transition-all flex items-center justify-between gap-4 ";
-                  
-                  if (isAnswering || (isTestModeActive && isShowingTestReview)) {
-                    if (answer.isCorrect) {
-                      buttonClass += "border-emerald-500 bg-emerald-50 text-emerald-900";
-                    } else if (isSelected) {
-                      buttonClass += "border-red-500 bg-red-50 text-red-900";
-                    } else {
-                      buttonClass += "border-slate-100 opacity-50";
-                    }
-                  } else {
-                    buttonClass += "border-slate-200 bg-white hover:border-emerald-200 hover:bg-slate-50 active:scale-[0.98]";
-                    if (isTestModeActive && testAnsweredIndices.includes(currentTestIndex) && isSelected) {
-                       buttonClass += "ring-2 ring-blue-500 ";
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => onAnswerSelect(index)}
-                      disabled={isAnswering || (isTestModeActive && isShowingTestReview)}
-                      className={buttonClass}
-                    >
-                      <span className="text-lg font-medium">{answer.text}</span>
-                      {showCorrect && <CheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />}
-                      {showIncorrect && <XCircle className="w-6 h-6 text-red-500 shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {isTestModeActive && !isShowingTestReview && (
-                <div className="flex justify-between mt-4">
-                  <button 
-                    onClick={() => setCurrentTestIndex(prev => Math.max(0, prev - 1))}
-                    disabled={currentTestIndex === 0}
-                    className="px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 disabled:opacity-30"
-                  >
-                    הקודם
-                  </button>
-                  
-                  {currentTestIndex === testQuestions.length - 1 ? (
-                    <button 
-                      onClick={submitTest}
-                      className="px-8 py-2 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-100"
-                    >
-                      סיום מבחן
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => setCurrentTestIndex(prev => Math.min(testQuestions.length - 1, prev + 1))}
-                      className="px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600"
-                    >
-                      הבא
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {isTestModeActive && isShowingTestReview && (
-                <div className="flex justify-between mt-4">
-                  <button 
-                    onClick={() => setCurrentTestIndex(prev => Math.max(0, prev - 1))}
-                    disabled={currentTestIndex === 0}
-                    className="px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 disabled:opacity-30"
-                  >
-                    הקודם
-                  </button>
-                  <button 
-                    onClick={() => setCurrentTestIndex(prev => Math.min(testQuestions.length - 1, prev + 1))}
-                    disabled={currentTestIndex === testQuestions.length - 1}
-                    className="px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 disabled:opacity-30"
-                  >
-                    הבא
-                  </button>
-                </div>
-              )}
-            </motion.div>
+              question={currentQuestion}
+              index={selectedAnswerIndex ?? -1}
+              isSelected={selectedAnswerIndex !== null}
+              isAnswering={isAnswering}
+              isTestMode={isTestModeActive}
+              isReviewMode={isShowingTestReview}
+              chosenAnswerIndex={isTestModeActive ? testUserAnswers[currentTestIndex] : undefined}
+              onAnswerSelect={onAnswerSelect}
+              onToggleFlag={toggleFlag}
+              isFlagged={flaggedIndices.includes(currentTestIndex)}
+            />
           )}
         </AnimatePresence>
+
+        {isTestModeActive && (
+          <div className="flex justify-between mt-4">
+            <button 
+              onClick={() => setCurrentTestIndex(prev => Math.max(0, prev - 1))}
+              disabled={currentTestIndex === 0}
+              className="px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 disabled:opacity-30"
+            >
+              הקודם
+            </button>
+            
+            {isShowingTestReview ? (
+              <button 
+                onClick={() => setCurrentTestIndex(prev => Math.min(testQuestions.length - 1, prev + 1))}
+                disabled={currentTestIndex === testQuestions.length - 1}
+                className="px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 disabled:opacity-30"
+              >
+                הבא
+              </button>
+            ) : (
+              currentTestIndex === testQuestions.length - 1 ? (
+                <button 
+                  onClick={submitTest}
+                  className="px-8 py-2 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-100"
+                >
+                  סיום מבחן
+                </button>
+              ) : (
+                <button 
+                  onClick={() => setCurrentTestIndex(prev => Math.min(testQuestions.length - 1, prev + 1))}
+                  className="px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600"
+                >
+                  הבא
+                </button>
+              )
+            )}
+          </div>
+        )}
       </main>
 
       {!isTestModeActive && (
