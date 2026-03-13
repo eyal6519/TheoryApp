@@ -11,7 +11,7 @@ Focus on the core engine for the 40-minute test and question selection logic.
     - [x] Implement `useTestMode` hook to satisfy all tests.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Domain Logic' (Protocol in workflow.md) 7c1c317
 
-## Phase 2: UI Components
+## Phase 2: UI Components [checkpoint: 6e43950]
 Develop the specialized UI elements for the test environment.
 
 - [x] Task: Create `src/components/TestModeHeader.tsx`. b3baa28
@@ -24,7 +24,7 @@ Develop the specialized UI elements for the test environment.
 - [x] Task: Create `src/components/TestModeResult.tsx`. 041919f
     - [x] Implement a clear "Pass/Fail" results screen with final score.
     - [x] Write tests for result conditional rendering.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Components' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: UI Components' (Protocol in workflow.md) 6e43950
 
 ## Phase 3: Integration & UX Flow
 Connect the domain logic with the UI and integrate into the main application.
