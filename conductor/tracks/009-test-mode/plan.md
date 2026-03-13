@@ -17,10 +17,10 @@ Develop the specialized UI elements for the test environment.
 - [x] Task: Create `src/components/TestModeHeader.tsx`. b3baa28
     - [x] Implement visible timer display at the top.
     - [x] Write tests for timer formatting (MM:SS).
-- [ ] Task: Create `src/components/TestModeNavigation.tsx`.
-    - [ ] Implement 1-30 question grid for rapid navigation.
-    - [ ] Implement flagging logic with visual indicators in the grid.
-    - [ ] Write tests for grid click events and flagging status.
+- [x] Task: Create `src/components/TestModeNavigation.tsx`. 5136401
+    - [x] Implement 1-30 question grid for rapid navigation.
+    - [x] Implement flagging logic with visual indicators in the grid.
+    - [x] Write tests for grid click events and flagging status.
 - [ ] Task: Create `src/components/TestModeResult.tsx`.
     - [ ] Implement a clear "Pass/Fail" results screen with final score.
     - [ ] Write tests for result conditional rendering.
