@@ -8,7 +8,14 @@ export interface ReviewSession {
   failed: boolean;
 }
 
-export function useQuiz(initialQuestions: Question[]) {
+export interface QuizOptions {
+  includeKnown?: boolean;
+  manualReviewOnly?: boolean;
+}
+
+export function useQuiz(initialQuestions: Question[], options: QuizOptions = {}) {
+  const { includeKnown = false, manualReviewOnly = false } = options;
+
   // Initialize pools from LocalStorage immediately (lazy initialization)
   const [knownIds, setKnownIds] = useState<Set<string>>(() => {
     const saved = localStorage.getItem('knownIds');
@@ -20,6 +27,11 @@ export function useQuiz(initialQuestions: Question[]) {
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
 
+  const [manualReviewIds, setManualReviewIds] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('manualReviewIds');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
   const [remaining, setRemaining] = useState<Question[]>([]);
   const [initialized, setInitialized] = useState(false);
 
@@ -27,18 +39,30 @@ export function useQuiz(initialQuestions: Question[]) {
   const [reviewSession, setReviewSession] = useState<ReviewSession | null>(null);
 
   // Sync remaining when initialQuestions or knownIds change
-  // BUT only shuffle once when questions are first loaded
+  // BUT only shuffle once when questions are first loaded for a specific set
   useEffect(() => {
-    if (initialQuestions.length > 0 && !initialized) {
-      const filtered = initialQuestions.filter(q => !knownIds.has(q.id));
-      setRemaining(shuffle(filtered));
-      setInitialized(true);
-    } else if (initialQuestions.length > 0 && initialized) {
-      // If already initialized but knownIds changed elsewhere (e.g. storage sync)
-      // we just filter, we don't re-shuffle the existing remaining
+    if (initialQuestions.length === 0) return;
+
+    let filtered = initialQuestions;
+    
+    if (manualReviewOnly) {
+      filtered = filtered.filter(q => manualReviewIds.has(q.id));
+    }
+    
+    if (!includeKnown) {
+      filtered = filtered.filter(q => !knownIds.has(q.id));
+    }
+    
+    setRemaining(shuffle(filtered));
+    setInitialized(true);
+  }, [initialQuestions, includeKnown, manualReviewOnly, manualReviewIds.size]); // Re-initialize whenever questions, mode or pool changes
+
+  // Handle knownIds changes during a session
+  useEffect(() => {
+    if (initialized && !includeKnown) {
       setRemaining(prev => prev.filter(q => !knownIds.has(q.id)));
     }
-  }, [initialQuestions, knownIds, initialized]);
+  }, [knownIds, includeKnown, initialized]);
 
   // Save to LocalStorage when pools change
   useEffect(() => {
@@ -48,6 +72,10 @@ export function useQuiz(initialQuestions: Question[]) {
   useEffect(() => {
     localStorage.setItem('reviewIds', JSON.stringify(Array.from(reviewIds)));
   }, [reviewIds]);
+
+  useEffect(() => {
+    localStorage.setItem('manualReviewIds', JSON.stringify(Array.from(manualReviewIds)));
+  }, [manualReviewIds]);
 
   const currentQuestion = remaining.length > 0 ? remaining[0] : null;
 
@@ -117,15 +145,34 @@ export function useQuiz(initialQuestions: Question[]) {
     setReviewSession(null);
   };
 
+  const toggleManualReview = (id: string) => {
+    setManualReviewIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const isManualReviewMarked = (id: string) => {
+    return manualReviewIds.has(id);
+  };
+
   return {
     currentQuestion,
     remaining,
     knownCount: knownIds.size,
     reviewCount: reviewIds.size,
+    manualReviewCount: manualReviewIds.size,
     remainingCount: remaining.length,
     handleAnswer,
     bringReviewToFront,
     reviewSession,
     resetReviewSession,
+    toggleManualReview,
+    isManualReviewMarked,
   };
 }

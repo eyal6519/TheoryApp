@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, RotateCcw, Trophy, BookOpen, Clock, Play } from 'lucide-react';
+import { CheckCircle, XCircle, RotateCcw, Trophy, BookOpen, Clock, Play, Star } from 'lucide-react';
 import type { Question } from './types';
 import { parseJsonQuestions } from './utils/dataParser';
 import { useQuiz } from './hooks/useQuiz';
@@ -23,6 +23,8 @@ interface QuestionDisplayProps {
   onAnswerSelect: (index: number) => void;
   onToggleFlag?: () => void;
   isFlagged?: boolean;
+  onToggleManualReview?: () => void;
+  isManualReviewMarked?: boolean;
 }
 
 const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
@@ -36,6 +38,8 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   onAnswerSelect,
   onToggleFlag,
   isFlagged,
+  onToggleManualReview,
+  isManualReviewMarked,
 }) => {
   return (
     <motion.div
@@ -60,14 +64,25 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             <span className="inline-block px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold">
               {question.category || 'כללי'}
             </span>
-            {isTestMode && !isReviewMode && onToggleFlag && (
-              <button 
-                onClick={onToggleFlag}
-                className={`p-2 rounded-full transition-colors ${isFlagged ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'}`}
-              >
-                <Clock size={18} fill={isFlagged ? "currentColor" : "none"} />
-              </button>
-            )}
+            <div className="flex gap-2">
+              {!isTestMode && onToggleManualReview && (
+                <button 
+                  onClick={onToggleManualReview}
+                  className={`p-2 rounded-full transition-colors ${isManualReviewMarked ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400 hover:text-amber-400'}`}
+                  title={isManualReviewMarked ? "הסר מהמועדפים" : "הוסף למועדפים"}
+                >
+                  <Star size={18} fill={isManualReviewMarked ? "currentColor" : "none"} />
+                </button>
+              )}
+              {isTestMode && !isReviewMode && onToggleFlag && (
+                <button 
+                  onClick={onToggleFlag}
+                  className={`p-2 rounded-full transition-colors ${isFlagged ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'}`}
+                >
+                  <Clock size={18} fill={isFlagged ? "currentColor" : "none"} />
+                </button>
+              )}
+            </div>
           </div>
           <h2 className="text-xl font-bold leading-tight text-slate-800">
             {question.title}
@@ -140,6 +155,9 @@ export function App() {
   // Modal state
   const [showReviewModal, setShowReviewModal] = useState(false);
 
+  // Manual Review Pool state
+  const [isManualReviewPoolActive, setIsManualReviewPoolActive] = useState(false);
+
   // Test Mode State
   const [isTestModeActive, setIsTestModeActive] = useState(false);
   const [currentTestIndex, setCurrentTestIndex] = useState(0);
@@ -150,12 +168,18 @@ export function App() {
     currentQuestion: practiceQuestion,
     knownCount,
     reviewCount,
+    manualReviewCount,
     remainingCount,
     handleAnswer: handlePracticeAnswer,
     bringReviewToFront,
     reviewSession,
     resetReviewSession,
-  } = useQuiz(allQuestions);
+    toggleManualReview,
+    isManualReviewMarked,
+  } = useQuiz(allQuestions, { 
+    manualReviewOnly: isManualReviewPoolActive, 
+    includeKnown: isManualReviewPoolActive 
+  });
 
   const {
     questions: testQuestions,
@@ -243,6 +267,20 @@ export function App() {
       setToastMessage('אין שאלות לביקורת כרגע');
       setShowToast(true);
     }
+  };
+
+  const toggleManualReviewPool = () => {
+    if (!isManualReviewPoolActive && manualReviewCount === 0) {
+      setToastMessage('אין שאלות מסומנות כרגע');
+      setShowToast(true);
+      return;
+    }
+    setIsManualReviewPoolActive(prev => {
+      const next = !prev;
+      setToastMessage(next ? 'מעבר לשאלות מסומנות' : 'חזרה לכל השאלות');
+      setShowToast(true);
+      return next;
+    });
   };
 
   const handleStartTest = () => {
@@ -335,29 +373,6 @@ export function App() {
   // Current question data
   const currentQuestion = isTestModeActive ? testQuestions[currentTestIndex] : practiceQuestion;
 
-  if (!currentQuestion && allQuestions.length > 0 && !isTestModeActive) {
-    return (
-      <div className="min-h-screen bg-emerald-50 flex items-center justify-center p-4 text-center" dir="rtl">
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full"
-        >
-          <Trophy className="w-20 h-20 text-emerald-500 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">כל הכבוד!</h1>
-          <p className="text-slate-600 mb-8">סיימת את כל {allQuestions.length} השאלות בהצלחה.</p>
-          <button 
-            onClick={resetProgress}
-            className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <RotateCcw className="w-5 h-5" />
-            התחל מחדש
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900" dir="rtl">
       {isTestModeActive ? (
@@ -370,7 +385,7 @@ export function App() {
                 <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">ידוע</span>
                 <div className="flex items-center gap-1 text-emerald-600 font-bold">
                   <CheckCircle className="w-4 h-4" />
-                  <span>{knownCount}</span>
+                  <span data-testid="known-count">{knownCount}</span>
                 </div>
               </div>
               <button 
@@ -381,7 +396,18 @@ export function App() {
                 <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold group-hover:text-amber-500">לביקורת</span>
                 <div className="flex items-center gap-1 text-amber-500 font-bold">
                   <Clock className="w-4 h-4" />
-                  <span>{reviewCount}</span>
+                  <span data-testid="review-count">{reviewCount}</span>
+                </div>
+              </button>
+              <button 
+                onClick={toggleManualReviewPool}
+                className={`flex flex-col items-center hover:bg-slate-50 px-2 rounded-lg transition-colors group ${isManualReviewPoolActive ? 'text-amber-500 bg-amber-50' : ''}`}
+                title={isManualReviewPoolActive ? "חזרה לכל השאלות" : "מעבר לשאלות מסומנות"}
+              >
+                <span className={`text-[10px] uppercase tracking-wider font-bold ${isManualReviewPoolActive ? 'text-amber-500' : 'text-slate-400'}`}>מועדפים</span>
+                <div className={`flex items-center gap-1 font-bold ${isManualReviewPoolActive ? 'text-amber-500' : 'text-slate-400 group-hover:text-amber-500'}`}>
+                  <Star className="w-4 h-4" fill={isManualReviewPoolActive ? "currentColor" : "none"} />
+                  <span data-testid="manual-review-count">{manualReviewCount}</span>
                 </div>
               </button>
             </div>
@@ -438,7 +464,54 @@ export function App() {
 
       <main className="flex-1 max-w-xl w-full mx-auto p-4 flex flex-col gap-6">
         <AnimatePresence mode="wait">
-          {currentQuestion && (
+          {!currentQuestion && !isTestModeActive ? (
+            <motion.div 
+              key="finished-screen"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white p-8 rounded-3xl shadow-xl w-full text-center"
+            >
+              {isManualReviewPoolActive && manualReviewCount === 0 ? (
+                <>
+                  <Star className="w-20 h-20 text-slate-300 mx-auto mb-6" />
+                  <h1 className="text-3xl font-bold text-slate-800 mb-2">אין שאלות מסומנות</h1>
+                  <p className="text-slate-600 mb-8">סמן שאלות בכוכב כדי לרכז אותן כאן.</p>
+                  <button 
+                    onClick={() => setIsManualReviewPoolActive(false)}
+                    className="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-900 transition-colors"
+                  >
+                    חזרה לכל השאלות
+                  </button>
+                </>
+              ) : isManualReviewPoolActive ? (
+                <>
+                  <Trophy className="w-20 h-20 text-emerald-500 mx-auto mb-6" />
+                  <h1 className="text-3xl font-bold text-slate-800 mb-2">סיימת את המועדפים!</h1>
+                  <p className="text-slate-600 mb-8">עברת על כל השאלות שסימנת.</p>
+                  <button 
+                    onClick={() => setIsManualReviewPoolActive(false)}
+                    className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-colors"
+                  >
+                    חזרה לכל השאלות
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Trophy className="w-20 h-20 text-emerald-500 mx-auto mb-6" />
+                  <h1 className="text-3xl font-bold text-slate-800 mb-2">כל הכבוד!</h1>
+                  <p className="text-slate-600 mb-8">סיימת את כל {allQuestions.length} השאלות בהצלחה.</p>
+                  <button 
+                    onClick={resetProgress}
+                    className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                    התחל מחדש
+                  </button>
+                </>
+              )}
+            </motion.div>
+          ) : currentQuestion ? (
             <QuestionDisplay 
               key={isTestModeActive ? `${currentTestIndex}-${currentQuestion.id}` : currentQuestion.id}
               question={currentQuestion}
@@ -451,8 +524,10 @@ export function App() {
               onAnswerSelect={onAnswerSelect}
               onToggleFlag={toggleFlag}
               isFlagged={flaggedIndices.includes(currentTestIndex)}
+              onToggleManualReview={!isTestModeActive ? () => toggleManualReview(currentQuestion.id) : undefined}
+              isManualReviewMarked={!isTestModeActive ? isManualReviewMarked(currentQuestion.id) : false}
             />
-          )}
+          ) : null}
         </AnimatePresence>
 
         {isTestModeActive && (

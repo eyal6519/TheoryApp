@@ -111,6 +111,47 @@ describe('useQuiz', () => {
     expect(result.current.remaining[1].id).toBe('1');
   });
 
+  describe('Manual Review Pool', () => {
+    it('should initialize manualReviewIds from LocalStorage', () => {
+      localStorage.setItem('manualReviewIds', JSON.stringify(['1', '3']));
+      const { result } = renderHook(() => useQuiz(mockQuestions));
+      
+      expect(result.current.manualReviewCount).toBe(2);
+      expect(result.current.isManualReviewMarked('1')).toBe(true);
+      expect(result.current.isManualReviewMarked('2')).toBe(false);
+      expect(result.current.isManualReviewMarked('3')).toBe(true);
+    });
+
+    it('should toggle manualReview status', () => {
+      const { result } = renderHook(() => useQuiz(mockQuestions));
+      
+      act(() => {
+        result.current.toggleManualReview('1');
+      });
+      
+      expect(result.current.manualReviewCount).toBe(1);
+      expect(result.current.isManualReviewMarked('1')).toBe(true);
+      
+      act(() => {
+        result.current.toggleManualReview('1');
+      });
+      
+      expect(result.current.manualReviewCount).toBe(0);
+      expect(result.current.isManualReviewMarked('1')).toBe(false);
+    });
+
+    it('should persist manualReviewIds to LocalStorage when changed', () => {
+      const { result } = renderHook(() => useQuiz(mockQuestions));
+      
+      act(() => {
+        result.current.toggleManualReview('2');
+      });
+      
+      const stored = JSON.parse(localStorage.getItem('manualReviewIds') || '[]');
+      expect(stored).toEqual(['2']);
+    });
+  });
+
   it('should track review session progress and failure', () => {
     const { result } = renderHook(() => useQuiz(mockQuestions));
     
