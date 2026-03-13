@@ -9,4 +9,5 @@
 | `005-random-order` | [Randomized Question Order](./tracks/005-random-order/index.md) | `COMPLETED` |
 | `006-review-mode` | [Review Mode Button](./tracks/006-review-mode/index.md) | `COMPLETED` |
 | `007-review-feedback` | [Review Session Feedback](./tracks/007-review-feedback/index.md) | `COMPLETED` |
-| `008-big-count` | [Big Remaining Count with Animation](./tracks/008-big-count/index.md) | `NEW` |
+| `008-big-count` | [Big Remaining Count with Animation](./tracks/008-big-count/index.md) | `COMPLETED` |
+| `009-test-mode` | [Test Mode Simulation](./tracks/009-test-mode/index.md) | `NEW` |
