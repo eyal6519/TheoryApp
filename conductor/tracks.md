@@ -11,4 +11,5 @@
 | `007-review-feedback` | [Review Session Feedback](./tracks/007-review-feedback/index.md) | `COMPLETED` |
 | `008-big-count` | [Big Remaining Count with Animation](./tracks/008-big-count/index.md) | `COMPLETED` |
 | `009-test-mode` | [Test Mode Simulation](./tracks/009-test-mode/index.md) | `COMPLETED` |
-| `010-review-pool` | [Question Review Pool](./tracks/010-review-pool_20260313/index.md) | `NEW` |
+| `010-review-pool` | [Question Review Pool](./tracks/010-review-pool_20260313/index.md) | `COMPLETED` |
+| `reading-mode_20260313` | [Reading Mode](./tracks/reading-mode_20260313/index.md) | `NEW` |
